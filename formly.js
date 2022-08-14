@@ -7,16 +7,83 @@ export default function validAnyFormat(anyInput, REGEX) {
 
 /* Formly functions to validate forms data */
 
+// Verify the date
+export function validDate(dateInput, format) {
+  let date = new Date(dateInput.value);
+  let [day, month, year] = [];
+
+  if (
+    format === "DMY" &&
+    validAnyFormat(dateInput, /^\d{2}[/.-]\d{2}[/.-]\d{4}/)
+  ) {
+    if (dateInput.value.includes("/")) {
+      [day, month, year] = dateInput.value.split("/");
+    } else if (dateInput.value.includes(".")) {
+      [day, month, year] = dateInput.value.split(".");
+    } else if (dateInput.value.includes("-")) {
+      [day, month, year] = dateInput.value.split("-");
+    }
+
+    date = new Date(year + "-" + month + "-" + day);
+
+    if (date != "Invalid Date") {
+      return true;
+    }
+  } else if (
+    format === "MDY" &&
+    validAnyFormat(dateInput, /^\d{2}[/.-]\d{2}[/.-]\d{4}/) &&
+    date != "Invalid Date"
+  ) {
+    return true;
+  } else if (
+    format === "YMD" &&
+    validAnyFormat(dateInput, /^\d{4}[/.-]\d{2}[/.-]\d{2}/) &&
+    date != "Invalid Date"
+  ) {
+    return true;
+  }
+  return false;
+}
+
 // Verify the email format
 export const validEmailFormat = (emailInput) =>
   validAnyFormat(emailInput, /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/);
 
+// Verify the imei
+export const validImei = (imeiInput) => {
+  let imei = Number(imeiInput.value);
+  let sum = 0;
+
+  if (imeiInput.value.length != 15 || isNaN(imei)) {
+    return false;
+  }
+
+  for (let i = 1; i <= 15; i++) {
+    let integer = parseInt(imei / Math.pow(10, 15 - i));
+
+    if (i % 2 === 0) {
+      integer = integer * 2;
+      sum += parseInt(integer / 10) + (integer % 10);
+    } else {
+      sum += integer;
+    }
+
+    imei = imei % Math.pow(10, 15 - i);
+  }
+
+  return sum % 10 === 0;
+};
+
 // Verify the IPv4 format
-export const validIpv4Format = (IpInput) =>
+export const validIpv4Format = (ipInput) =>
   validAnyFormat(
-    IpInput,
+    ipInput,
     /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/
   );
+
+// Verify the MAC address format
+export const validMacFormat = (macInput) =>
+  validAnyFormat(macInput, /\b([0-9A-F]{2}[.:-]){5}([0-9A-F]){2}\b/);
 
 // Verify the maximum age that the form accepts
 export const validMaxAge = (anyInput, max) => {
@@ -43,6 +110,19 @@ export const validMinAge = (anyInput, min) => {
 // Verify the minimum and maximum age that the form accepts
 export const validRangeAge = (anyInput, min, max) =>
   validMaxAge(anyInput, max) && validMinAge(anyInput, min) ? true : false;
+
+// Verify the number format
+export const validNumberFormat = (numberInput, format) => {
+  if (format === "BIN") {
+    return validAnyFormat(numberInput, /^[01]+$/);
+  } else if (format === "OCT") {
+    return validAnyFormat(numberInput, /^[0-7][0-7]*$/);
+  } else if (format === "DEC") {
+    return validAnyFormat(numberInput, /^\d+\.?\d{0,}$/);
+  } else if (format === "HEX") {
+    return validAnyFormat(numberInput, /[0-9A-Fa-f]/g);
+  }
+};
 
 // Verify the password format
 export const validPasswordFormat = (
@@ -81,10 +161,25 @@ export const validMaskFormat = (MaskInput) =>
     /^(((255\.){3}(255|254|252|248|240|224|192|128|0+))|((255\.){2}(255|254|252|248|240|224|192|128|0+)\.0)|((255\.)(255|254|252|248|240|224|192|128|0+)(\.0+){2})|((255|254|252|248|240|224|192|128|0+)(\.0+){3}))$/
   );
 
+// Verify the time
+export function validTime(timeInput, format) {
+  if (format === "12h") {
+    return validAnyFormat(
+      timeInput,
+      /(((0[1-9])|(1[0-2])):([0-5])(0|5)\s(A|P|a|p)(M|m))/
+    );
+  } else if (format === "24h") {
+    return validAnyFormat(
+      timeInput,
+      /^([0-9]|0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$/
+    );
+  }
+}
+
 // Verify the URL format
-export const validWebsiteFormat = (websiteInput) =>
+export const validWebsiteFormat = (urlInput) =>
   validAnyFormat(
-    websiteInput,
+    urlInput,
     /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/
   );
 
