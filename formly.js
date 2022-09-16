@@ -8,7 +8,7 @@ export default function validAnyFormat(anyInput, REGEX) {
 /* Formly functions to validate forms data */
 
 // Verify the date
-export function validDate(dateInput, format) {
+export const validDate = (dateInput, format) => {
   let date = new Date(dateInput.value);
   let [day, month, year] = [];
 
@@ -43,7 +43,7 @@ export function validDate(dateInput, format) {
     return true;
   }
   return false;
-}
+};
 
 // Verify the email format
 export const validEmailFormat = (emailInput) =>
@@ -162,7 +162,7 @@ export const validMaskFormat = (MaskInput) =>
   );
 
 // Verify the time
-export function validTime(timeInput, format) {
+export const validTime = (timeInput, format) => {
   if (format === "12h") {
     return validAnyFormat(
       timeInput,
@@ -174,7 +174,7 @@ export function validTime(timeInput, format) {
       /^([0-9]|0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$/
     );
   }
-}
+};
 
 // Verify the URL format
 export const validWebsiteFormat = (urlInput) =>
